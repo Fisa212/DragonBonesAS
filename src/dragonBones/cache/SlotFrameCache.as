@@ -6,6 +6,7 @@ package dragonBones.cache
 	{
 		public var colorTransform:ColorTransform;
 		public var displayIndex:int = -1;
+		public var gotoAndPlay:String;
 //		public var zOrder:int;
 		public function SlotFrameCache()
 		{
@@ -18,6 +19,7 @@ package dragonBones.cache
 			super.copy(frameCache);
 			colorTransform = (frameCache as SlotFrameCache).colorTransform;
 			displayIndex = (frameCache as SlotFrameCache).displayIndex;
+			gotoAndPlay = (frameCache as SlotFrameCache).gotoAndPlay;
 		}
 		
 		override public function clear():void 
@@ -25,6 +27,7 @@ package dragonBones.cache
 			super.clear();
 			colorTransform = null;
 			displayIndex = -1;
+			gotoAndPlay = null;
 		}
 	}
 }

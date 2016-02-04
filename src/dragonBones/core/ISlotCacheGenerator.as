@@ -12,5 +12,6 @@ package dragonBones.core
 		function get colorChanged():Boolean;
 		function get colorTransform():ColorTransform;
 		function get displayIndex():int;
+		function get gotoAndPlay():String;
 	}
 }

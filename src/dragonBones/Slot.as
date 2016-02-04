@@ -31,11 +31,14 @@
 		/** @private */
 		dragonBones_internal var _originDisplayIndex:Number;
 		/** @private */
+		dragonBones_internal var _gotoAndPlay:String;
+		
 		protected var _offsetZOrder:Number;
 		
 		protected var _displayList:Array;
 		protected var _currentDisplayIndex:int;
 		protected var _colorTransform:ColorTransform;
+		
 		//TO DO: 以后把这两个属性变成getter
 		//另外还要处理 isShowDisplay 和 visible的矛盾
 		protected var _currentDisplay:Object;
@@ -188,13 +191,21 @@
 			{
 				if(_isShowDisplay)
 				{
-					if(
-						this._armature &&
-						this._armature.animation.lastAnimationState &&
-						childArmature.animation.hasAnimation(this._armature.animation.lastAnimationState.name)
-					)
+					var curAnimation:String = _gotoAndPlay;
+					if (curAnimation == null)
 					{
-						childArmature.animation.gotoAndPlay(this._armature.animation.lastAnimationState.name);
+						curAnimation = childArmature.armatureData.defaultAnimation;
+					}
+					if (curAnimation == null)
+					{
+						if (this._armature && this._armature.animation.lastAnimationState)
+						{
+							curAnimation = this._armature.animation.lastAnimationState.name;
+						}
+					}
+					if (curAnimation && childArmature.animation.hasAnimation(curAnimation))
+					{
+						childArmature.animation.gotoAndPlay(curAnimation);
 					}
 					else
 					{
@@ -428,6 +439,16 @@
 			}
 		}
 		
+		public function set gotoAndPlay(value:String):void 
+		{
+			if (_gotoAndPlay != value)
+			{
+				_gotoAndPlay = value;
+				updateChildArmatureAnimation();
+			}
+			
+		}
+		
 		//Abstract method
 		
 		/**
@@ -563,6 +584,10 @@
 					{
 						childArmature.animation.gotoAndPlay(frame.action);
 					}
+				}
+				else
+				{
+					this.gotoAndPlay = slotFrame.gotoAndPlay;
 				}
 			}
 		} 

@@ -9,6 +9,7 @@ package dragonBones.objects
 		private var _skinDataList:Vector.<SkinData>;
 		private var _slotDataList:Vector.<SlotData>;
 		private var _animationDataList:Vector.<AnimationData>;
+		public var defaultAnimation:String;
 		
 		public function ArmatureData()
 		{

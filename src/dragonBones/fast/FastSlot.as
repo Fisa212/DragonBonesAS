@@ -29,6 +29,8 @@ package dragonBones.fast
 		/** @private */
 		dragonBones_internal var _originDisplayIndex:Number;
 		/** @private */
+		dragonBones_internal var _gotoAndPlay:String;
+		
 		protected var _offsetZOrder:Number;
 		
 		protected var _displayList:Array;
@@ -115,6 +117,7 @@ package dragonBones.fast
 			
 		//displayIndex
 			changeDisplayIndex((this._frameCache as SlotFrameCache).displayIndex);
+			this.gotoAndPlay = (this._frameCache as SlotFrameCache).gotoAndPlay;
 		}
 		
 		/** @private */
@@ -134,6 +137,41 @@ package dragonBones.fast
 			_global.copy(this._origin);
 			_global.x += this._parent._tweenPivot.x;
 			_global.y += this._parent._tweenPivot.y;
+		}
+		
+		private function updateChildArmatureAnimation():void
+		{
+			if(childArmature)
+			{
+				if(_currentDisplayIndex >= 0)
+				{
+					var curAnimation:String = _gotoAndPlay;
+					if (curAnimation == null)
+					{
+						curAnimation = childArmature.armatureData.defaultAnimation;
+					}
+					if (curAnimation == null)
+					{
+						if (this.armature && this.armature.animation.lastAnimationState)
+						{
+							curAnimation = this.armature.animation.lastAnimationState.name;
+						}
+					}
+					if (curAnimation && childArmature.animation.hasAnimation(curAnimation))
+					{
+						childArmature.animation.gotoAndPlay(curAnimation);
+					}
+					else
+					{
+						childArmature.animation.play();
+					}
+				}
+				else
+				{
+					childArmature.animation.stop();
+					childArmature.animation._lastAnimationState = null;
+				}
+			}
 		}
 		
 		dragonBones_internal function initDisplayList(newDisplayList:Array):void
@@ -367,6 +405,16 @@ package dragonBones.fast
 			}
 		}
 		
+		public function set gotoAndPlay(value:String):void 
+		{
+			if (_gotoAndPlay != value)
+			{
+				_gotoAndPlay = value;
+				updateChildArmatureAnimation();
+			}
+			
+		}
+		
 		/**
 		 * Indicates the Bone instance that directly contains this DBObject instance if any.
 		 */
@@ -383,6 +431,11 @@ package dragonBones.fast
 		public function get colorChanged():Boolean
 		{
 			return _isColorChanged;
+		}
+		
+		public function get gotoAndPlay():String 
+		{
+			return _gotoAndPlay;
 		}
 		
 	//Abstract method
@@ -512,6 +565,10 @@ package dragonBones.fast
 				{
 					targetArmature.getAnimation().gotoAndPlay(frame.action);
 				}
+			}
+			else
+			{
+				this.gotoAndPlay = slotFrame.gotoAndPlay;
 			}
 		}
 		

@@ -21,6 +21,7 @@ package dragonBones.cache
 				cache.colorTransform =  ColorTransformUtil.cloneColor(cacheGenerator.colorTransform);
 			}
 			cache.displayIndex = cacheGenerator.displayIndex;
+			cache.gotoAndPlay = cacheGenerator.gotoAndPlay;
 			frameCacheList.push(cache);
 		}
 	}

@@ -12,7 +12,7 @@
 		public var visible:Boolean;
 		public var zOrder:Number;
 		public var color:ColorTransform;
-		
+		public var gotoAndPlay:String;
 		
 		public function SlotFrame()
 		{

@@ -110,7 +110,7 @@
 		{
 			var outputArmatureData:ArmatureData = new ArmatureData();
 			outputArmatureData.name = armatureDataToParse[ConstValues.A_NAME];
-			
+			outputArmatureData.defaultAnimation = armatureDataToParse[ConstValues.A_DEFAULT_ANIMATION];
 			for each(var boneObject:Object in armatureDataToParse[ConstValues.BONE])
 			{
 				outputArmatureData.addBoneData(parseBoneData(boneObject));
@@ -435,7 +435,8 @@
 			
 			//NaN:no tween, 10:auto tween, [-1, 0):ease in, 0:line easing, (0, 1]:ease out, (1, 2]:ease in out
 			frame.tweenEasing = getNumber(frameObject, ConstValues.A_TWEEN_EASING, 10);
-			frame.displayIndex = int(getNumber(frameObject,ConstValues.A_DISPLAY_INDEX,0));
+			frame.displayIndex = int(getNumber(frameObject, ConstValues.A_DISPLAY_INDEX, 0));
+			frame.gotoAndPlay = frameObject[ConstValues.A_GOTOANDPLAY];
 			
 			//如果为NaN，则说明没有改变过zOrder
 			frame.zOrder = getNumber(frameObject, ConstValues.A_Z_ORDER, tempDragonBonesData.isGlobalData ? NaN:0);
