@@ -1,5 +1,6 @@
 package dragonBones.fast
 {
+	import dragonBones.objects.ParentTransformObject;
 	import flash.errors.IllegalOperationError;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
@@ -128,7 +129,11 @@ package dragonBones.fast
 				return;
 			}
 			
-			updateGlobal();
+			var result:ParentTransformObject = updateGlobal();
+			if (result)
+			{
+				result.release();
+			}
 			updateTransform();
 		}
 		
@@ -583,11 +588,11 @@ package dragonBones.fast
 			}
 		}
 		
-		override protected function updateGlobal():Object 
+		override protected function updateGlobal():ParentTransformObject 
 		{
 			calculateRelativeParentTransform();
 			TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
-			var output:Object = calculateParentTransform();
+			var output:ParentTransformObject = calculateParentTransform();
 			if(output != null)
 			{
 				//计算父骨头绝对坐标

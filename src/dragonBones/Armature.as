@@ -106,6 +106,13 @@
 		private var _delayDispose:Boolean;
 		private var _lockDispose:Boolean;
 		
+		// optimized by arhcy
+		private var _isFading:Boolean;
+ 		private var _i:int;
+ 		private var _tmpBone:Bone;
+ 		private var _childArmature:Armature;
+ 		private var _tmpSlot:Slot;
+ 
 		/** @private */
 		dragonBones_internal var _armatureData:ArmatureData;
 		/**
@@ -243,25 +250,25 @@
 			
 			passedTime *= _animation.timeScale;    //_animation's time scale will impact childArmature
 			
-			var isFading:Boolean = _animation._isFading;
-			var i:int = _boneList.length;
-			while(i --)
+			_isFading = _animation._isFading;
+			_i = _boneList.length;
+			while(_i --)
 			{
-				var bone:Bone = _boneList[i];
-				bone.update(isFading);
+				_tmpBone = _boneList[_i];
+				_tmpBone.update(_isFading);
 			}
 			
-			i = _slotList.length;
-			while(i --)
+			_i = _slotList.length;
+			while(_i --)
 			{
-				var slot:Slot = _slotList[i];
-				slot.update();
-				if(slot._isShowDisplay)
+				_tmpSlot = _slotList[_i];
+				_tmpSlot.update();
+				if(_tmpSlot._isShowDisplay)
 				{
-					var childArmature:Armature = slot.childArmature;
-					if(childArmature)
+					_childArmature = _tmpSlot.childArmature;
+					if(_childArmature)
 					{
-						childArmature.advanceTime(passedTime);
+						_childArmature.advanceTime(passedTime);
 					}
 				}
 			}

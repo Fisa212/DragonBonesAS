@@ -7,6 +7,7 @@
 	import dragonBones.objects.DisplayData;
 	import dragonBones.objects.Frame;
 	import dragonBones.objects.MeshData;
+	import dragonBones.objects.ParentTransformObject;
 	import dragonBones.objects.SlotData;
 	import dragonBones.objects.SlotFrame;
 	import dragonBones.utils.TransformUtil;
@@ -170,7 +171,12 @@
 				return;
 			}
 			
-			updateGlobal();
+			var result:ParentTransformObject = updateGlobal();
+			if (result)
+			{
+				result.release();
+			}
+			
 			updateTransform();
 			_needUpdate = false;
 		}
@@ -592,11 +598,11 @@
 			}
 		} 
 		
-		override protected function updateGlobal():Object 
+		override protected function updateGlobal():ParentTransformObject 
 		{
 			calculateRelativeParentTransform();
 			TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
-			var output:Object = calculateParentTransform();
+			var output:ParentTransformObject = calculateParentTransform();
 			if(output != null)
 			{
 				//计算父骨头绝对坐标

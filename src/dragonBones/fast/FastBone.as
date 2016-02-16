@@ -8,6 +8,7 @@ package dragonBones.fast
 	import dragonBones.objects.BoneData;
 	import dragonBones.objects.DBTransform;
 	import dragonBones.objects.Frame;
+	import dragonBones.objects.ParentTransformObject;
 	import flash.geom.Point;
 
 	use namespace dragonBones_internal;
@@ -117,7 +118,11 @@ package dragonBones.fast
 			}
 			blendingTimeline();
 			//计算global
-			updateGlobal();
+			var result:ParentTransformObject = updateGlobal();
+			if (result)
+			{
+				result.release();
+			}
 		}
 		
 		/** @private */

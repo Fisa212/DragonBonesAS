@@ -4,6 +4,7 @@
 	import dragonBones.display.NativeFastSlot;
 	import dragonBones.fast.FastArmature;
 	import dragonBones.fast.FastSlot;
+	import dragonBones.objects.MeshData;
 	import dragonBones.Slot;
 	import dragonBones.core.dragonBones_internal;
 	import dragonBones.display.NativeSlot;
@@ -74,6 +75,11 @@
 		{
 			var slot:Slot = new NativeSlot();
 			return slot;
+		}
+		
+		override protected function generateMesh(textureAtlas:Object, fullName:String, meshData:MeshData):Object 
+		{
+			return generateDisplay(textureAtlas, fullName, meshData.pivot.x, meshData.pivot.y);
 		}
 		
 		/** @private */
