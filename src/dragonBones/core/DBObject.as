@@ -163,29 +163,29 @@ package dragonBones.core
 				var parentGlobalTransform:DBTransform = this._parent._globalTransformForChild;
 				var parentGlobalTransformMatrix:Matrix = this._parent._globalTransformMatrixForChild;
 				
-				if(!this.inheritTranslation || !this.inheritRotation || !this.inheritScale)
-				{
-					parentGlobalTransform = DBObject._tempParentGlobalTransform;
-					parentGlobalTransform.copy(this._parent._globalTransformForChild);
-					if(!this.inheritTranslation)
-					{
-						parentGlobalTransform.x = 0;
-						parentGlobalTransform.y = 0;
-					}
-					if(!this.inheritScale)
-					{
-						parentGlobalTransform.scaleX = 1;
-						parentGlobalTransform.scaleY = 1;
-					}
-					if(!this.inheritRotation)
-					{
-						parentGlobalTransform.skewX = 0;
-						parentGlobalTransform.skewY = 0;
-					}
-					
-					parentGlobalTransformMatrix = DBObject._tempParentGlobalTransformMatrix;
-					TransformUtil.transformToMatrix(parentGlobalTransform, parentGlobalTransformMatrix);
-				}
+				//if(!this.inheritTranslation || !this.inheritRotation || !this.inheritScale)
+				//{
+					//parentGlobalTransform = DBObject._tempParentGlobalTransform;
+					//parentGlobalTransform.copy(this._parent._globalTransformForChild);
+					//if(!this.inheritTranslation)
+					//{
+						//parentGlobalTransform.x = 0;
+						//parentGlobalTransform.y = 0;
+					//}
+					//if(!this.inheritScale)
+					//{
+						//parentGlobalTransform.scaleX = 1;
+						//parentGlobalTransform.scaleY = 1;
+					//}
+					//if(!this.inheritRotation)
+					//{
+						//parentGlobalTransform.skewX = 0;
+						//parentGlobalTransform.skewY = 0;
+					//}
+					//
+					//parentGlobalTransformMatrix = DBObject._tempParentGlobalTransformMatrix;
+					//TransformUtil.transformToMatrix(parentGlobalTransform, parentGlobalTransformMatrix);
+				//}
 				
 				return ParentTransformObject.create().setTo(parentGlobalTransform, parentGlobalTransformMatrix);
 			}
@@ -219,6 +219,44 @@ package dragonBones.core
 					_global.scaleX *= parentGlobalTransform.scaleX;
 					_global.scaleY *= parentGlobalTransform.scaleY;
 				}
+			}
+			TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
+			return output;
+		}
+		
+		protected function updateGlobal2():ParentTransformObject
+		{
+			calculateRelativeParentTransform();
+			var output:ParentTransformObject = calculateParentTransform();
+			if(output != null)
+			{
+				//计算父骨头绝对坐标
+				var parentMatrix:Matrix = output.parentGlobalTransformMatrix;
+				var parentGlobalTransform:DBTransform = output.parentGlobalTransform;
+				//计算绝对坐标
+				//var x:Number = _global.x;
+				//var y:Number = _global.y;
+				//
+				//_global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
+				//_global.y = parentMatrix.d * y + parentMatrix.b * x + parentMatrix.ty;
+				
+				if (this.inheritRotation && this.inheritScale)
+				{
+					
+					_globalTransformMatrix.concat(parentMatrix);
+					TransformUtil.matrixToTransform(_globalTransformMatrix, _global, false,false);
+				}
+				//if(this.inheritRotation)
+				//{
+					//_global.skewX += parentGlobalTransform.skewX;
+					//_global.skewY += parentGlobalTransform.skewY;
+				//}
+				//
+				//if(this.inheritScale)
+				//{
+					//_global.scaleX *= parentGlobalTransform.scaleX;
+					//_global.scaleY *= parentGlobalTransform.scaleY;
+				//}
 			}
 			TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
 			return output;

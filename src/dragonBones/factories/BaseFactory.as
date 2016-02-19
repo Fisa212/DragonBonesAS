@@ -362,6 +362,7 @@ package dragonBones.factories
 			outputArmature.name = armatureData.name;
 			outputArmature.__dragonBonesData = dragonBonesData;
 			outputArmature._armatureData = armatureData;
+			outputArmature._skewEnable = dragonBonesData.version >= 4.5;
 			outputArmature.animation.animationDataList = armatureData.animationDataList;
 			
 			buildBones(outputArmature);

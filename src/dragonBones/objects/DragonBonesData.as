@@ -7,6 +7,7 @@ package dragonBones.objects
 	{
 		public var name:String;
 		public var isGlobalData:Boolean;
+		public var version:Number = 0;
 		
 		private var _armatureDataList:Vector.<ArmatureData> = new Vector.<ArmatureData>(0, true);
 		private var _displayDataDictionary:Dictionary = new Dictionary();

@@ -95,6 +95,7 @@
 		
 		/** @private Store event needed to dispatch in current frame. When advanceTime execute complete, dispath them.*/
 		dragonBones_internal var _eventList:Vector.<Event>;
+		dragonBones_internal var _skewEnable:Boolean;
 		
 		
 		/** @private Store slots based on slots' zOrder*/

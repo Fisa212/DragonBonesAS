@@ -482,6 +482,61 @@
 			}
 		}
 		
+		override protected function updateGlobal():ParentTransformObject 
+		{
+			if (!_armature._skewEnable)
+			{
+				return super.updateGlobal();
+			}
+			calculateRelativeParentTransform();
+			var output:ParentTransformObject = calculateParentTransform();
+			if(output != null)
+			{
+				//计算父骨头绝对坐标
+				var parentMatrix:Matrix = output.parentGlobalTransformMatrix;
+				var parentGlobalTransform:DBTransform = output.parentGlobalTransform;
+				
+				var scaleXF:Boolean = _global.scaleX * parentGlobalTransform.scaleX > 0;
+				var scaleYF:Boolean = _global.scaleY * parentGlobalTransform.scaleY > 0;
+				var relativeRotation:Number = _global.rotation;
+				var relativeScaleX:Number = _global.scaleX;
+				var relativeScaleY:Number = _global.scaleY;
+				
+				TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
+				_globalTransformMatrix.concat(parentMatrix);
+				
+				if (this.inheritRotation && this.inheritScale)
+				{
+					TransformUtil.matrixToTransform(_globalTransformMatrix, _global, scaleXF, scaleYF);
+				}
+				else
+				{
+					TransformUtil.matrixToTransformPosition(_globalTransformMatrix, _global);
+					if(inheritRotation)
+					{
+						TransformUtil.matrixToTransformScale(_globalTransformMatrix, _global, scaleXF,scaleYF);
+						TransformUtil.matrixToTransformRotation(_globalTransformMatrix, _global, _global.scaleX, _global.scaleY);
+					}
+					else
+					{
+						_global.rotation = relativeRotation;
+					}
+					
+					if(inheritScale)
+					{
+						TransformUtil.matrixToTransformScale(_globalTransformMatrix, _global, scaleXF,scaleYF);
+					}
+					else
+					{
+						_global.scaleX = relativeScaleX;
+						_global.scaleY = relativeScaleY;
+					}
+					TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
+				}
+			}
+			return output;
+		}
+		
 		/** @private */
 		dragonBones_internal function addState(timelineState:TimelineState):void
 		{

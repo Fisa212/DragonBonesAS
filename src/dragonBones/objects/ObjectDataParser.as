@@ -92,6 +92,7 @@
 			var frameRate:uint = int(rawDataToParse[ConstValues.A_FRAME_RATE]);
 			
 			var outputDragonBonesData:DragonBonesData =  new DragonBonesData();
+			outputDragonBonesData.version = Number(version);
 			outputDragonBonesData.name = rawDataToParse[ConstValues.A_NAME];
 			outputDragonBonesData.isGlobalData = rawDataToParse[ConstValues.A_IS_GLOBAL] == "0" ? false : true;
 			tempDragonBonesData = outputDragonBonesData;

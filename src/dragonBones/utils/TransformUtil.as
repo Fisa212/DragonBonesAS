@@ -114,5 +114,51 @@ package dragonBones.utils
 			rotation = rotation > 0 ? rotation : 2*Math.PI + rotation;
 			return rotation - Math.PI;
 		}
+		
+		[Inline]
+		public static function matrixToTransformPosition(matrix:Matrix, transform:DBTransform):void
+		{
+			transform.x = matrix.tx;
+			transform.y = matrix.ty;
+		}
+		
+		[Inline]
+		public static function matrixToTransformScale(matrix:Matrix, transform:DBTransform, scaleXF:Boolean, scaleYF:Boolean):void
+		{
+			transform.scaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b) * (scaleXF ? 1 : -1);
+			transform.scaleY = Math.sqrt(matrix.d * matrix.d + matrix.c * matrix.c) * (scaleYF ? 1 : -1);
+		}
+		
+		[Inline]
+		public static function matrixToTransformRotation(matrix:Matrix, transform:DBTransform, scaleX:Number, scaleY:Number):void
+		{
+			tmpSkewXArray[0] = Math.acos(matrix.d / scaleY);
+			tmpSkewXArray[1] = -tmpSkewXArray[0];
+			tmpSkewXArray[2] = Math.asin(-matrix.c / scaleY);
+			tmpSkewXArray[3] = tmpSkewXArray[2] >= 0 ? Math.PI - tmpSkewXArray[2] : tmpSkewXArray[2] - Math.PI;
+			
+			if(isEqual(tmpSkewXArray[0], tmpSkewXArray[2]) || isEqual(tmpSkewXArray[0], tmpSkewXArray[3]))
+			{
+				transform.skewX = tmpSkewXArray[0];
+			}
+			else 
+			{
+				transform.skewX = tmpSkewXArray[1];
+			}
+			
+			tmpSkewYArray[0] = Math.acos(matrix.a / scaleX);
+			tmpSkewYArray[1] = -tmpSkewYArray[0];
+			tmpSkewYArray[2] = Math.asin(matrix.b / scaleX);
+			tmpSkewYArray[3] = tmpSkewYArray[2] >= 0 ? Math.PI - tmpSkewYArray[2] : tmpSkewYArray[2] - Math.PI;
+			
+			if(isEqual(tmpSkewYArray[0],tmpSkewYArray[2]) || isEqual(tmpSkewYArray[0], tmpSkewYArray[3]))
+			{
+				transform.skewY = tmpSkewYArray[0];
+			}
+			else 
+			{
+				transform.skewY = tmpSkewYArray[1];
+			}
+		}
 	}
 }
