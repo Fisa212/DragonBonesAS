@@ -74,6 +74,8 @@
 		dragonBones_internal var _globalTransformForChild:DBTransform;
 		/** @private */
 		dragonBones_internal var _globalTransformMatrixForChild:Matrix;
+		/** @private */
+		dragonBones_internal var _localTransform:DBTransform;
 		
 		private var _tempGlobalTransformForChild:DBTransform;
 		private var _tempGlobalTransformMatrixForChild:Matrix;
@@ -343,6 +345,7 @@
 			_global.skewY = this._origin.skewY + _tween.skewY + this._offset.skewY;
 			_global.x = this._origin.x + _tween.x + this._offset.x;
 			_global.y = this._origin.y + _tween.y + this._offset.y;
+			
 		}
 		
 		/** @private */
@@ -488,6 +491,7 @@
 			{
 				return super.updateGlobal();
 			}
+			
 			calculateRelativeParentTransform();
 			var output:ParentTransformObject = calculateParentTransform();
 			if(output != null)
@@ -501,36 +505,33 @@
 				var relativeRotation:Number = _global.rotation;
 				var relativeScaleX:Number = _global.scaleX;
 				var relativeScaleY:Number = _global.scaleY;
+				//TODO:parentBoneRotationIK;
+				var parentRotation:Number = parentGlobalTransform.rotation;
 				
-				TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
+				_localTransform = _global;
+				if (this.inheritScale && !inheritRotation)
+				{
+					if (parentRotation != 0)
+					{
+						_localTransform = _localTransform.clone();
+						_localTransform.rotation -= parentRotation;
+					}
+				}
+				TransformUtil.transformToMatrix(_localTransform, _globalTransformMatrix);
 				_globalTransformMatrix.concat(parentMatrix);
 				
-				if (this.inheritRotation && this.inheritScale)
+				if (inheritScale)
 				{
 					TransformUtil.matrixToTransform(_globalTransformMatrix, _global, scaleXF, scaleYF);
 				}
-				else
+				else 
 				{
 					TransformUtil.matrixToTransformPosition(_globalTransformMatrix, _global);
-					if(inheritRotation)
-					{
-						TransformUtil.matrixToTransformScale(_globalTransformMatrix, _global, scaleXF,scaleYF);
-						TransformUtil.matrixToTransformRotation(_globalTransformMatrix, _global, _global.scaleX, _global.scaleY);
-					}
-					else
-					{
-						_global.rotation = relativeRotation;
-					}
+
+					_global.scaleX = _localTransform.scaleX;
+					_global.scaleY = _localTransform.scaleY;
+					_global.rotation = _localTransform.rotation + (inheritRotation ? parentRotation : 0);
 					
-					if(inheritScale)
-					{
-						TransformUtil.matrixToTransformScale(_globalTransformMatrix, _global, scaleXF,scaleYF);
-					}
-					else
-					{
-						_global.scaleX = relativeScaleX;
-						_global.scaleY = relativeScaleY;
-					}
 					TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
 				}
 			}

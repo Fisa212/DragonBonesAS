@@ -81,6 +81,7 @@ package dragonBones.fast
 		dragonBones_internal var __dragonBonesData:DragonBonesData;
 		dragonBones_internal var _armatureData:ArmatureData;
 		dragonBones_internal var _slotsZOrderChanged:Boolean;
+		dragonBones_internal var _skewEnable:Boolean;
 		
 		private var _eventList:Array;
 		private var _delayDispose:Boolean;

@@ -117,6 +117,13 @@ package dragonBones.objects
 			skewY = TransformUtil.normalizeRotation(skewY);	
 		}
 		
+		public function clone():DBTransform
+		{
+			var output:DBTransform = new DBTransform();
+			output.copy(this);
+			return output;
+		}
+		
 		/**
 		 * Get a string representing all DBTransform property values.
 		 * @return String All property values in a formatted string.

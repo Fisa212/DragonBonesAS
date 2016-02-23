@@ -131,7 +131,7 @@ package dragonBones.fast
 			{
 				var parentGlobalTransform:DBTransform = this._parent._global;
 				var parentGlobalTransformMatrix:Matrix = this._parent._globalTransformMatrix;
-				
+				/*
 				if(	!this.inheritTranslation && (parentGlobalTransform.x != 0 || parentGlobalTransform.y != 0) ||
 					!this.inheritRotation && (parentGlobalTransform.skewX != 0 || parentGlobalTransform.skewY != 0) ||
 					!this.inheritScale && (parentGlobalTransform.scaleX != 1 || parentGlobalTransform.scaleY != 1))
@@ -157,6 +157,7 @@ package dragonBones.fast
 					parentGlobalTransformMatrix = DBObject._tempParentGlobalTransformMatrix;
 					TransformUtil.transformToMatrix(parentGlobalTransform, parentGlobalTransformMatrix);
 				}
+				*/
 				return ParentTransformObject.create().setTo(parentGlobalTransform,parentGlobalTransformMatrix);
 			}
 			return null;

@@ -9,6 +9,8 @@ package dragonBones.fast
 	import dragonBones.objects.DBTransform;
 	import dragonBones.objects.Frame;
 	import dragonBones.objects.ParentTransformObject;
+	import dragonBones.utils.TransformUtil;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 
 	use namespace dragonBones_internal;
@@ -40,6 +42,8 @@ package dragonBones.fast
 		dragonBones_internal var _needUpdate:int;
 		/** @private */
 		dragonBones_internal var _tweenPivot:Point;
+		/** @private */
+		dragonBones_internal var _localTransform:DBTransform;
 		
 		public function FastBone()
 		{
@@ -123,6 +127,59 @@ package dragonBones.fast
 			{
 				result.release();
 			}
+		}
+		
+		override protected function updateGlobal():ParentTransformObject 
+		{
+			if (!armature._skewEnable)
+			{
+				return super.updateGlobal();
+			}
+			
+			calculateRelativeParentTransform();
+			var output:ParentTransformObject = calculateParentTransform();
+			if(output != null)
+			{
+				//计算父骨头绝对坐标
+				var parentMatrix:Matrix = output.parentGlobalTransformMatrix;
+				var parentGlobalTransform:DBTransform = output.parentGlobalTransform;
+				
+				var scaleXF:Boolean = _global.scaleX * parentGlobalTransform.scaleX > 0;
+				var scaleYF:Boolean = _global.scaleY * parentGlobalTransform.scaleY > 0;
+				var relativeRotation:Number = _global.rotation;
+				var relativeScaleX:Number = _global.scaleX;
+				var relativeScaleY:Number = _global.scaleY;
+				//TODO:parentBoneRotationIK;
+				var parentRotation:Number = parentGlobalTransform.rotation;
+				
+				_localTransform = _global;
+				if (this.inheritScale && !inheritRotation)
+				{
+					if (parentRotation != 0)
+					{
+						_localTransform = _localTransform.clone();
+						_localTransform.rotation -= parentRotation;
+					}
+				}
+				TransformUtil.transformToMatrix(_localTransform, _globalTransformMatrix);
+				_globalTransformMatrix.concat(parentMatrix);
+				
+				if (inheritScale)
+				{
+					TransformUtil.matrixToTransform(_globalTransformMatrix, _global, scaleXF, scaleYF);
+				}
+				else 
+				{
+					TransformUtil.matrixToTransformPosition(_globalTransformMatrix, _global);
+
+					_global.scaleX = _localTransform.scaleX;
+					_global.scaleY = _localTransform.scaleY;
+					_global.rotation = _localTransform.rotation + (inheritRotation ? parentRotation : 0);
+					
+					TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
+				}
+			}
+			return output;
 		}
 		
 		/** @private */
