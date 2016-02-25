@@ -6,6 +6,7 @@ package dragonBones.objects
 		public var name:String;
 		
 		private var _boneDataList:Vector.<BoneData>;
+		private var _ikDataList:Vector.<IKData>;
 		private var _skinDataList:Vector.<SkinData>;
 		private var _slotDataList:Vector.<SlotData>;
 		private var _animationDataList:Vector.<AnimationData>;
@@ -14,6 +15,7 @@ package dragonBones.objects
 		public function ArmatureData()
 		{
 			_boneDataList = new Vector.<BoneData>(0, true);
+			_ikDataList = new Vector.<IKData>(0, true);
 			_skinDataList = new Vector.<SkinData>(0, true);
 			_slotDataList = new Vector.<SlotData>(0, true);
 			_animationDataList = new Vector.<AnimationData>(0, true);
@@ -68,6 +70,11 @@ package dragonBones.objects
 			{
 				_boneDataList[i].dispose();
 			}
+			i = _ikDataList.length;
+			while(i --)
+			{
+				_ikDataList[i].dispose();
+			}
 			i = _skinDataList.length;
 			while(i --)
 			{
@@ -86,6 +93,8 @@ package dragonBones.objects
 			
 			_boneDataList.fixed = false;
 			_boneDataList.length = 0;
+			_ikDataList.fixed = false;
+			_ikDataList.length = 0;
 			_skinDataList.fixed = false;
 			_skinDataList.length = 0;
 			_slotDataList.fixed = false;
@@ -94,6 +103,7 @@ package dragonBones.objects
 			_animationDataList.length = 0;
 			//_animationsCached。clear();
 			_boneDataList = null;
+			_ikDataList = null;
 			_skinDataList = null;
 			_slotDataList = null;
 			_animationDataList = null;
@@ -107,6 +117,18 @@ package dragonBones.objects
 				if(_boneDataList[i].name == boneName)
 				{
 					return _boneDataList[i];
+				}
+			}
+			return null;
+		}
+		public function getIKData(ikName:String):IKData
+		{
+			var i:int = _ikDataList.length;
+			while(i --)
+			{
+				if(_ikDataList[i].name == ikName)
+				{
+					return _ikDataList[i];
 				}
 			}
 			return null;
@@ -173,6 +195,24 @@ package dragonBones.objects
 				_boneDataList.fixed = false;
 				_boneDataList[_boneDataList.length] = boneData;
 				_boneDataList.fixed = true;
+			}
+			else
+			{
+				throw new ArgumentError();
+			}
+		}
+		
+		public function addIKData(ikData:IKData):void
+		{
+			if(!ikData)
+			{
+				throw new ArgumentError();
+			}
+			if (_ikDataList.indexOf(ikData) < 0)
+			{
+				_ikDataList.fixed = false;
+				_ikDataList[_ikDataList.length] = ikData;
+				_ikDataList.fixed = true;
 			}
 			else
 			{
@@ -267,6 +307,10 @@ package dragonBones.objects
 		public function get boneDataList():Vector.<BoneData>
 		{
 			return _boneDataList;
+		}
+		public function get ikDataList():Vector.<IKData>
+		{
+			return _ikDataList;
 		}
 		public function get skinDataList():Vector.<SkinData>
 		{

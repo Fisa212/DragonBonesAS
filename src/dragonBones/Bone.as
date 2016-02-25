@@ -1,6 +1,5 @@
 ﻿package dragonBones
 {
-	import dragonBones.objects.ParentTransformObject;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	
@@ -14,6 +13,7 @@
 	import dragonBones.objects.BoneData;
 	import dragonBones.objects.DBTransform;
 	import dragonBones.objects.Frame;
+	import dragonBones.objects.ParentTransformObject;
 	import dragonBones.utils.TransformUtil;
 	
 	use namespace dragonBones_internal;
@@ -30,6 +30,7 @@
 			var outputBone:Bone = new Bone();
 			
 			outputBone.name = boneData.name;
+			outputBone.length = boneData.length;
 			outputBone.inheritRotation = boneData.inheritRotation;
 			outputBone.inheritScale = boneData.inheritScale;
 			outputBone.origin.copy(boneData.transform);
@@ -48,6 +49,11 @@
 		 * Sometimes, we want slots controlled by a spedific animation state when animation is doing mix or addition.
 		 */
 		public var displayController:String;
+		
+		public var rotationIK:Number;
+		public var length:Number;
+		public var ikDvalue:Number=0;
+		public var isIKConstraint:Boolean = false;
 		
 		/** @private */
 		protected var _boneList:Vector.<Bone>;
@@ -335,6 +341,14 @@
 		public function invalidUpdate():void
 		{
 			_needUpdate = 2;
+			var arr:Array = this.armature.isIKTargetData(this);
+			for each (var ik:IKConstraint in arr) 
+			{
+				for each (var bo:Bone in ik.bones) 
+				{
+					bo.invalidUpdate();
+				}
+			}
 		}
 		
 		override protected function calculateRelativeParentTransform():void
@@ -360,10 +374,8 @@
 			{
 				return;
 			}
-			
 			blendingTimeline();
-			
-		//计算global
+			//计算global
 			var result:ParentTransformObject = updateGlobal();
 			var parentGlobalTransform:DBTransform; 
 			var parentGlobalTransformMatrix:Matrix;
@@ -431,6 +443,21 @@
 				}
 			}
 		}
+		public function adjustGlobalTransformMatrixByIK():void
+		{
+			if(!parent)
+			{
+				return;
+			}
+			//updateGlobalTransform();
+			/*	_global.rotation = rotationIK-parentBoneRotation;
+			TransformUtil.transformToMatrix(_global, _globalTransformMatrix);*/
+			
+			global.rotation = rotationIK;
+			TransformUtil.transformToMatrix(global, _globalTransformMatrix);
+			_globalTransformForChild.rotation= rotationIK;
+			TransformUtil.transformToMatrix(_globalTransformForChild, _globalTransformMatrixForChild);
+		}
 		
 		/** @private */
 		dragonBones_internal function hideSlots():void
@@ -494,7 +521,7 @@
 			
 			calculateRelativeParentTransform();
 			var output:ParentTransformObject = calculateParentTransform();
-			if(output != null)
+			if(output != null && output.parentGlobalTransformMatrix && output.parentGlobalTransform)
 			{
 				//计算父骨头绝对坐标
 				var parentMatrix:Matrix = output.parentGlobalTransformMatrix;
@@ -505,8 +532,7 @@
 				var relativeRotation:Number = _global.rotation;
 				var relativeScaleX:Number = _global.scaleX;
 				var relativeScaleY:Number = _global.scaleY;
-				//TODO:parentBoneRotationIK;
-				var parentRotation:Number = parentGlobalTransform.rotation;
+				var parentRotation:Number = parentBoneRotation;
 				
 				_localTransform = _global;
 				if (this.inheritScale && !inheritRotation)
@@ -719,10 +745,13 @@
 			}
 		}
 		
-		
 		public function get slot():Slot
 		{
 			return _slotList.length > 0?_slotList[0]:null;
+		}
+		public function get parentBoneRotation():Number
+		{
+			return this.parent ? this.parent.rotationIK : 0;
 		}
 	}
 }

@@ -2,6 +2,7 @@
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.utils.Dictionary;
 	
 	import dragonBones.animation.Animation;
 	import dragonBones.animation.AnimationState;
@@ -15,6 +16,7 @@
 	import dragonBones.objects.ArmatureData;
 	import dragonBones.objects.DragonBonesData;
 	import dragonBones.objects.Frame;
+	import dragonBones.objects.IKData;
 	import dragonBones.objects.SkinData;
 	import dragonBones.objects.SlotData;
 
@@ -103,6 +105,10 @@
 		
 		/** @private Store bones based on bones' hierarchy (From root to leaf)*/
 		protected var _boneList:Vector.<Bone>;
+		/**计算IK约束**/
+		private var _boneIKList:Vector.<Vector.<Bone>> = new Vector.<Vector.<Bone>>();
+		
+		protected var _ikList:Vector.<IKConstraint>;
 		
 		private var _delayDispose:Boolean;
 		private var _lockDispose:Boolean;
@@ -168,6 +174,8 @@
 			_slotList.fixed = true;
 			_boneList = new Vector.<Bone>;
 			_boneList.fixed = true;
+			_ikList = new Vector.<IKConstraint>();
+			_ikList.fixed = true;
 			_eventList = new Vector.<Event>;
 			_skinLists = { };
 			_delayDispose = false;
@@ -200,17 +208,25 @@
 			{
 				_boneList[i].dispose();
 			}
+			i = _ikList.length;
+			while(i --)
+			{
+				_ikList[i].dispose();
+			}
 			
 			_slotList.fixed = false;
 			_slotList.length = 0;
 			_boneList.fixed = false;
 			_boneList.length = 0;
+			_ikList.fixed = false;
+			_ikList.length = 0;
 			_eventList.length = 0;
 			
 			_armatureData = null;
 			_animation = null;
 			_slotList = null;
 			_boneList = null;
+			_ikList = null;
 			_eventList = null;
 			
 			//_display = null;
@@ -251,25 +267,38 @@
 			
 			passedTime *= _animation.timeScale;    //_animation's time scale will impact childArmature
 			
-			_isFading = _animation._isFading;
-			_i = _boneList.length;
-			while(_i --)
-			{
-				_tmpBone = _boneList[_i];
-				_tmpBone.update(_isFading);
+			var isFading:Boolean = _animation._isFading;
+			var i:int = 0;//_boneList.length;
+			var bone:Bone;
+			if(_boneIKList.length > 0)
+			{	
+				for (i = 0; i < _boneIKList.length; i++) 
+				{
+					for each (bone in _boneIKList[i]){
+						bone.update(isFading);
+						bone.rotationIK = bone.global.rotation;
+						if(i != 0 && bone.isIKConstraint)
+						{
+							_ikList[i-1].compute();
+							bone.adjustGlobalTransformMatrixByIK();
+						}
+					}
+				}
 			}
 			
-			_i = _slotList.length;
-			while(_i --)
+			//IK
+			
+			i = _slotList.length;
+			while(i --)
 			{
-				_tmpSlot = _slotList[_i];
-				_tmpSlot.update();
-				if(_tmpSlot._isShowDisplay)
+				var slot:Slot = _slotList[i];
+				slot.update();
+				if(slot._isShowDisplay)
 				{
-					_childArmature = _tmpSlot.childArmature;
-					if(_childArmature)
+					var childArmature:Armature = slot.childArmature;
+					if(childArmature)
 					{
-						_childArmature.advanceTime(passedTime);
+						childArmature.advanceTime(passedTime);
 					}
 				}
 			}
@@ -409,7 +438,10 @@
 			}
 			return slot;
 		}
-		
+		public function getIKs(returnCopy:Boolean = true):Vector.<IKConstraint>
+		{
+			return returnCopy?_ikList.concat():_ikList;
+		}
 		/**
 		 * Get all Bone instance associated with this armature.
 		 * @param if return Vector copy
@@ -573,7 +605,34 @@
 				_slotList.fixed = true;
 			}
 		}
-		
+		public function updataBoneCache():void
+		{
+			_boneList.reverse();
+			var temp:Dictionary = new Dictionary();
+			var ikConstraintsCount:int = _ikList.length;
+			var arrayCount:int = ikConstraintsCount + 1;
+			
+			_boneIKList = new Vector.<Vector.<Bone>>();
+			while (_boneIKList.length < arrayCount)
+			_boneIKList[_boneIKList.length] = new Vector.<Bone>();
+			temp[_boneList[0].name] = 0;
+			for (var i:int = 0; i < _ikList.length; i++) 
+			{
+				temp[_ikList[i].bones[0].name] = i+1;
+			}
+			next:
+			for each(var bone:Bone in _boneList)
+			{
+				var current:Bone = bone;
+				while(current){
+					if(temp.hasOwnProperty(current.name)){
+						_boneIKList[temp[current.name]].push(bone);
+						continue next;
+					}
+					current = current.parent;
+				}
+			}
+		}
 		/**
 		 * Sort all slots based on zOrder
 		 */
@@ -687,7 +746,12 @@
 				_skinLists[skinName] = list;
 			}
 		}
-		
+		public function buildIK():void
+		{
+			_ikList = new Vector.<IKConstraint>()
+			for each (var ikConstraintData:IKData in _armatureData.ikDataList)
+			_ikList[_ikList.length] = new IKConstraint(ikConstraintData, this);
+		}
 		public function changeSkin(skinName:String):void
 		{
 			var skinData:SkinData = armatureData.getSkinData(skinName);
@@ -719,7 +783,18 @@
 				slot.changeDisplay(0);
 			}
 		}
-		
+		/**是否属于约束点**/
+		public function isIKTargetData(bone:Bone):Array
+		{
+			var target:Array=[];
+			for each (var ik:IKConstraint in _ikList) 
+			{
+				if(bone.name == ik.target.name){
+					target.push(ik);
+				}
+			}
+			return target;
+		}
 		public function getAnimation():Object
 		{
 			return _animation;

@@ -117,6 +117,11 @@
 				outputArmatureData.addBoneData(parseBoneData(boneObject));
 			}
 			
+			for each(var ikObject:Object in armatureDataToParse[ConstValues.IK])
+			{
+				outputArmatureData.addIKData(parseIKData(ikObject));
+			}
+			
 			for each(var slotObject:Object in armatureDataToParse[ConstValues.SLOT])
 			{
 				outputArmatureData.addSlotData(parseSlotData(slotObject));
@@ -161,6 +166,25 @@
 				boneData.global.copy(boneData.transform);
 			}
 			return boneData;
+		}
+		private static function parseIKData(ikObject:Object):IKData
+		{
+			var ikData:IKData = new IKData();
+			ikData.name = ikObject[ConstValues.A_NAME];
+			ikData.target = ikObject[ConstValues.A_TARGET];
+			if(ikObject.hasOwnProperty(ConstValues.A_WEIGHT)){
+				ikData.weight = Number(ikObject[ConstValues.A_WEIGHT]);
+			}else{
+				ikData.weight = 1;
+			}
+			ikData.bendPositive = getBoolean(ikObject, ConstValues.A_BENDPOSITIVE, true);
+			if(ikObject.hasOwnProperty(ConstValues.A_CHAIN)){
+				ikData.chain = ikObject[ConstValues.A_CHAIN];
+			}else{
+				ikData.chain = 0;
+			}
+			ikData.bones = ikObject[ConstValues.A_BONES];
+			return ikData;
 		}
 		
 		private static function parseSkinData(skinObject:Object):SkinData

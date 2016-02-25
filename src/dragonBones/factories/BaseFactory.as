@@ -366,7 +366,8 @@ package dragonBones.factories
 			outputArmature.animation.animationDataList = armatureData.animationDataList;
 			
 			buildBones(outputArmature);
-			
+			outputArmature.buildIK();
+			outputArmature.updataBoneCache();
 			buildSlots(outputArmature, skinName, textureAtlasName);
 			
 			outputArmature.advanceTime(0);

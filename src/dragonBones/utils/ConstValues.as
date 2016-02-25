@@ -11,6 +11,7 @@
 		public static const ARMATURE:String = "armature";
 		public static const SKIN:String = "skin";
 		public static const BONE:String = "bone";
+		public static const IK:String = "ik";
 		public static const SLOT:String = "slot";
 		public static const DISPLAY:String = "display";
 		public static const ANIMATION:String = "animation";
@@ -90,6 +91,12 @@
 		
 		public static const A_DEFAULT_ANIMATION:String = "defaultAnimation";
 		public static const A_GOTOANDPLAY:String = "gotoAndPlay";
+		
+		public static const A_TARGET:String = "target";
+		public static const A_WEIGHT:String = "weight";
+		public static const A_BONES:String = "bone";
+		public static const A_BENDPOSITIVE:String = "bendPositive";
+		public static const A_CHAIN:String = "chain";
 	}
 
 }
