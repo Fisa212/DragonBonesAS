@@ -5,6 +5,7 @@ package dragonBones.fast
 	import dragonBones.events.FrameEvent;
 	import dragonBones.fast.animation.FastAnimationState;
 	import dragonBones.fast.animation.FastBoneTimelineState;
+	import dragonBones.IKConstraint;
 	import dragonBones.objects.BoneData;
 	import dragonBones.objects.DBTransform;
 	import dragonBones.objects.Frame;
@@ -26,12 +27,17 @@ package dragonBones.fast
 			var outputBone:FastBone = new FastBone();
 			
 			outputBone.name = boneData.name;
+			outputBone.length = boneData.length;
 			outputBone.inheritRotation = boneData.inheritRotation;
 			outputBone.inheritScale = boneData.inheritScale;
 			outputBone.origin.copy(boneData.transform);
 			
 			return outputBone;
 		}
+		
+		public var rotationIK:Number;
+		public var length:Number;
+		public var isIKConstraint:Boolean = false;
 		
 		public var slotList:Vector.<FastSlot> = new Vector.<FastSlot>();
 		public var boneList:Vector.<FastBone> = new Vector.<FastBone>();
@@ -89,6 +95,25 @@ package dragonBones.fast
 		public function invalidUpdate():void
 		{
 			_needUpdate = 2;
+			
+			var arr:Array = this.armature.getIKTargetData(this);
+			var i:int;
+			var len:int;
+			var j:int;
+			var jLen:int;
+			var ik:FastIKConstraint;
+			var bo:FastBone;
+			
+			for (i = 0, len = arr.length; i < len; i++)
+			{
+				ik = arr[i];
+				for (j = 0, jLen = ik.bones.length; j < jLen; j++)
+				{
+					bo = ik.bones[j];
+					bo.invalidUpdate();
+				}
+			}
+			
 		}
 		
 		override protected function calculateRelativeParentTransform():void
@@ -129,6 +154,19 @@ package dragonBones.fast
 			}
 		}
 		
+		public function adjustGlobalTransformMatrixByIK():void
+		{
+			if(!parent)
+			{
+				return;
+			}
+			
+			global.rotation = rotationIK;
+			TransformUtil.transformToMatrix(global, _globalTransformMatrix);
+			//_globalTransformForChild.rotation= rotationIK;
+			//TransformUtil.transformToMatrix(_globalTransformForChild, _globalTransformMatrixForChild);
+		}
+		
 		override protected function updateGlobal():ParentTransformObject 
 		{
 			if (!armature._skewEnable)
@@ -138,7 +176,7 @@ package dragonBones.fast
 			
 			calculateRelativeParentTransform();
 			var output:ParentTransformObject = calculateParentTransform();
-			if(output != null)
+			if(output != null && output.parentGlobalTransformMatrix && output.parentGlobalTransform)
 			{
 				//计算父骨头绝对坐标
 				var parentMatrix:Matrix = output.parentGlobalTransformMatrix;
@@ -149,8 +187,7 @@ package dragonBones.fast
 				var relativeRotation:Number = _global.rotation;
 				var relativeScaleX:Number = _global.scaleX;
 				var relativeScaleY:Number = _global.scaleY;
-				//TODO:parentBoneRotationIK;
-				var parentRotation:Number = parentGlobalTransform.rotation;
+				var parentRotation:Number = parentBoneRotation;
 				
 				_localTransform = _global;
 				if (this.inheritScale && !inheritRotation)
@@ -267,6 +304,11 @@ package dragonBones.fast
 		public function get slot():FastSlot
 		{
 			return slotList.length > 0? slotList[0]:null;
+		}
+		
+		public function get parentBoneRotation():Number
+		{
+			return this.parent ? this.parent.rotationIK : 0;
 		}
 	}
 }

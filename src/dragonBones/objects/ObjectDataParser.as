@@ -215,6 +215,7 @@
 		private static function parseSlotData(slotObject:Object):SlotData
 		{
 			var slotData:SlotData = new SlotData();
+			slotData.gotoAndPlay = slotObject[ConstValues.A_GOTOANDPLAY];
 			slotData.name = slotObject[ConstValues.A_NAME];
 			slotData.parent = slotObject[ConstValues.A_PARENT];
 			slotData.zOrder = getNumber(slotObject, ConstValues.A_Z_ORDER, 0) || 0;

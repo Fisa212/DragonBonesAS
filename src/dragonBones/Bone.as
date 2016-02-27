@@ -52,7 +52,6 @@
 		
 		public var rotationIK:Number;
 		public var length:Number;
-		public var ikDvalue:Number=0;
 		public var isIKConstraint:Boolean = false;
 		
 		/** @private */
@@ -341,11 +340,20 @@
 		public function invalidUpdate():void
 		{
 			_needUpdate = 2;
-			var arr:Array = this.armature.isIKTargetData(this);
-			for each (var ik:IKConstraint in arr) 
+			var arr:Array = this.armature.getIKTargetData(this);
+			var i:int;
+			var len:int;
+			var j:int;
+			var jLen:int;
+			var ik:IKConstraint;
+			var bo:Bone;
+			
+			for (i = 0, len = arr.length; i < len; i++)
 			{
-				for each (var bo:Bone in ik.bones) 
+				ik = arr[i];
+				for (j = 0, jLen = ik.bones.length; j < jLen; j++)
 				{
+					bo = ik.bones[j];
 					bo.invalidUpdate();
 				}
 			}
@@ -449,9 +457,6 @@
 			{
 				return;
 			}
-			//updateGlobalTransform();
-			/*	_global.rotation = rotationIK-parentBoneRotation;
-			TransformUtil.transformToMatrix(_global, _globalTransformMatrix);*/
 			
 			global.rotation = rotationIK;
 			TransformUtil.transformToMatrix(global, _globalTransformMatrix);

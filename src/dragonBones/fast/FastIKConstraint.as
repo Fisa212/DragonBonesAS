@@ -1,31 +1,31 @@
-package dragonBones
+package dragonBones.fast
 {
 	import flash.geom.Point;
 	
 	import dragonBones.objects.IKData;
 	
-	public class IKConstraint
+	public class FastIKConstraint
 	{
 		private var ikdata:IKData;
-		private var armature:Armature;
+		private var armature:FastArmature;
 		
-		public var bones:Vector.<Bone>;
-		public var target:Bone;
+		public var bones:Vector.<FastBone>;
+		public var target:FastBone;
 		public var bendDirection:int;
 		public var weight:Number;
 		
 		public var animationCacheBend:int=0;		
 		public var animationCacheWeight:Number=-1;	
 		
-		public function IKConstraint(data:IKData,armatureData:Armature)
+		public function FastIKConstraint(data:IKData,armatureData:FastArmature)
 		{
 			this.ikdata = data;
 			this.armature = armatureData
 				
 			weight = data.weight;
 			bendDirection = (data.bendPositive?1:-1);
-			bones = new Vector.<Bone>();
-			var bone:Bone;
+			bones = new Vector.<FastBone>();
+			var bone:FastBone;
 			if(data.chain){
 				bone = armatureData.getBone(data.bones).parent;
 				bone.isIKConstraint = true;
@@ -56,13 +56,13 @@ package dragonBones
 					break;
 			}
 		}
-		public function compute1 (bone:Bone, target:Bone, weightA:Number) : void {
+		public function compute1 (bone:FastBone, target:FastBone, weightA:Number) : void {
 			var parentRotation:Number = (!bone.inheritRotation || bone.parent == null) ? 0 : bone.parent.global.rotation;
 			var rotation:Number = bone.global.rotation;
 			var rotationIK:Number = Math.atan2(target.global.y - bone.global.y, target.global.x - bone.global.x);
 			bone.rotationIK = rotation + (rotationIK - rotation) * weightA;
 		}
-		public function compute2(parent:Bone, child:Bone, targetX:Number,targetY:Number, bendDirection:int, weightA:Number):Point
+		public function compute2(parent:FastBone, child:FastBone, targetX:Number,targetY:Number, bendDirection:int, weightA:Number):Point
 		{
 			//添加斜切后的算法，现在用的
 			if (weightA == 0) {

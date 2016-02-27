@@ -367,7 +367,7 @@ package dragonBones.factories
 			
 			buildBones(outputArmature);
 			outputArmature.buildIK();
-			outputArmature.updataBoneCache();
+			outputArmature.updateBoneCache();
 			buildSlots(outputArmature, skinName, textureAtlasName);
 			
 			outputArmature.advanceTime(0);
@@ -384,6 +384,8 @@ package dragonBones.factories
 			outputArmature.animation.animationDataList = armatureData.animationDataList;
 			
 			buildFastBones(outputArmature);
+			outputArmature.buildIK();
+			outputArmature.updateBoneCache();
 			buildFastSlots(outputArmature, skinName, textureAtlasName);
 			
 			outputArmature.advanceTime(0);

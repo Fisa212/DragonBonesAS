@@ -1,7 +1,9 @@
 package dragonBones.fast
 {
+	import dragonBones.objects.IKData;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.utils.Dictionary;
 	
 	import dragonBones.cache.AnimationCacheManager;
 	import dragonBones.cache.SlotFrameCache;
@@ -74,6 +76,9 @@ package dragonBones.fast
 		public var slotList:Vector.<FastSlot>;
 		dragonBones_internal var _slotDic:Object;
 		
+		private var _boneIKList:Vector.<Vector.<FastBone>> = new Vector.<Vector.<FastBone>>();
+		protected var _ikList:Vector.<FastIKConstraint>;
+		
 		public var slotHasChildArmatureList:Vector.<FastSlot>;
 		
 		protected var _enableEventDispatch:Boolean = true;
@@ -100,7 +105,8 @@ package dragonBones.fast
 			slotList = new Vector.<FastSlot>;
 			_slotDic = {};
 			slotHasChildArmatureList = new Vector.<FastSlot>;
-			
+			_ikList = new Vector.<FastIKConstraint>();
+			_ikList.fixed = true;
 			_eventList = [];
 			
 			_delayDispose = false;
@@ -132,17 +138,24 @@ package dragonBones.fast
 			{
 				boneList[i].dispose();
 			}
-			
+			i = _ikList.length;
+			while(i --)
+			{
+				_ikList[i].dispose();
+			}
 			slotList.fixed = false;
 			slotList.length = 0;
 			boneList.fixed = false;
 			boneList.length = 0;
+			_ikList.fixed = false;
+			_ikList.length = 0;
 			
 			_armatureData = null;
 			_animation = null;
 			slotList = null;
 			boneList = null;
 			_eventList = null;
+			_ikList = null;
 			
 		}
 		
@@ -159,6 +172,10 @@ package dragonBones.fast
 			var bone:FastBone;
 			var slot:FastSlot;
 			var i:int;
+			var len:int = _boneIKList.length;
+			var j:int;
+			var jLen:int;
+			
 			if(_animation.animationState.isUseCache())
 			{
 				if(!useCache)
@@ -185,11 +202,25 @@ package dragonBones.fast
 					}
 				}
 				
-				i = boneList.length;
-				while(i --)
+				//i = boneList.length;
+				//while(i --)
+				//{
+					//bone = boneList[i];
+					//bone.update();
+				//}
+				for (i = 0; i < len; i++) 
 				{
-					bone = boneList[i];
-					bone.update();
+					for (j = 0, jLen = _boneIKList[i].length; j < jLen; j++)
+					{
+						bone = _boneIKList[i][j];
+						bone.update();
+						bone.rotationIK = bone.global.rotation;
+						if(i != 0 && bone.isIKConstraint)
+						{
+							_ikList[i-1].compute();
+							bone.adjustGlobalTransformMatrixByIK();
+						}
+					}
 				}
 				
 				i = slotList.length;
@@ -540,6 +571,79 @@ package dragonBones.fast
 			{
 				_eventList.push(event);
 			}			
+		}
+		
+		public function getIKs(returnCopy:Boolean = true):Vector.<FastIKConstraint>
+		{
+			return returnCopy?_ikList.concat():_ikList;
+		}
+		
+		public function buildIK():void
+		{
+			var ikConstraintData:IKData;
+			_ikList.fixed = false;
+			_ikList.length = 0;
+			for (var i:int = 0, len:int = _armatureData.ikDataList.length; i < len; i++)
+			{
+				ikConstraintData = _armatureData.ikDataList[i];
+				_ikList.push(new FastIKConstraint(ikConstraintData, this));
+			}
+			_ikList.fixed = true;
+		}
+		
+		public function updateBoneCache():void
+		{
+			boneList.reverse();
+			var temp:Object = {};
+			var ikConstraintsCount:int = _ikList.length;
+			var arrayCount:int = ikConstraintsCount + 1;
+			var i:int;
+			var len:int;
+			var j:int;
+			var jLen:int;
+			var bone:FastBone;
+			var currentBone:FastBone;
+			
+			_boneIKList = new Vector.<Vector.<FastBone>>();
+			while (_boneIKList.length < arrayCount)
+			{
+				_boneIKList[_boneIKList.length] = new Vector.<FastBone>();
+			}
+			
+			temp[boneList[0].name] = 0;
+			for (i = 0, len = _ikList.length; i < len; i++) 
+			{
+				temp[_ikList[i].bones[0].name] = i+1;
+			}
+			next:
+			for (i = 0, len = boneList.length; i < len; i++)
+			{
+				bone = boneList[i];
+				currentBone = bone;
+				while (currentBone)
+				{
+					if (temp.hasOwnProperty(currentBone.name))
+					{
+						_boneIKList[temp[currentBone.name]].push(bone);
+						continue next;
+					}
+					currentBone = currentBone.parent;
+				}
+			}
+		}
+		
+		public function getIKTargetData(bone:FastBone):Array
+		{
+			var target:Array = [];
+			var ik:FastIKConstraint; 
+			for (var i:int = 0, len:int = _ikList.length; i < len; i++)
+			{
+				ik = _ikList[i];
+				if(bone.name == ik.target.name){
+					target.push(ik);
+				}
+			}
+			return target;
 		}
 	}
 }

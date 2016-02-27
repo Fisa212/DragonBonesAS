@@ -107,7 +107,6 @@
 		protected var _boneList:Vector.<Bone>;
 		/**计算IK约束**/
 		private var _boneIKList:Vector.<Vector.<Bone>> = new Vector.<Vector.<Bone>>();
-		
 		protected var _ikList:Vector.<IKConstraint>;
 		
 		private var _delayDispose:Boolean;
@@ -268,20 +267,23 @@
 			passedTime *= _animation.timeScale;    //_animation's time scale will impact childArmature
 			
 			var isFading:Boolean = _animation._isFading;
-			var i:int = 0;//_boneList.length;
+			var i:int = 0;
+			var len:int = _boneIKList.length;
 			var bone:Bone;
-			if(_boneIKList.length > 0)
-			{	
-				for (i = 0; i < _boneIKList.length; i++) 
+			var j:int;
+			var jLen:int;
+			
+			for (i = 0; i < len; i++) 
+			{
+				for (j = 0, jLen = _boneIKList[i].length; j < jLen; j++)
 				{
-					for each (bone in _boneIKList[i]){
-						bone.update(isFading);
-						bone.rotationIK = bone.global.rotation;
-						if(i != 0 && bone.isIKConstraint)
-						{
-							_ikList[i-1].compute();
-							bone.adjustGlobalTransformMatrixByIK();
-						}
+					bone = _boneIKList[i][j];
+					bone.update(isFading);
+					bone.rotationIK = bone.global.rotation;
+					if(i != 0 && bone.isIKConstraint)
+					{
+						_ikList[i-1].compute();
+						bone.adjustGlobalTransformMatrixByIK();
 					}
 				}
 			}
@@ -438,10 +440,7 @@
 			}
 			return slot;
 		}
-		public function getIKs(returnCopy:Boolean = true):Vector.<IKConstraint>
-		{
-			return returnCopy?_ikList.concat():_ikList;
-		}
+
 		/**
 		 * Get all Bone instance associated with this armature.
 		 * @param if return Vector copy
@@ -605,34 +604,7 @@
 				_slotList.fixed = true;
 			}
 		}
-		public function updataBoneCache():void
-		{
-			_boneList.reverse();
-			var temp:Dictionary = new Dictionary();
-			var ikConstraintsCount:int = _ikList.length;
-			var arrayCount:int = ikConstraintsCount + 1;
-			
-			_boneIKList = new Vector.<Vector.<Bone>>();
-			while (_boneIKList.length < arrayCount)
-			_boneIKList[_boneIKList.length] = new Vector.<Bone>();
-			temp[_boneList[0].name] = 0;
-			for (var i:int = 0; i < _ikList.length; i++) 
-			{
-				temp[_ikList[i].bones[0].name] = i+1;
-			}
-			next:
-			for each(var bone:Bone in _boneList)
-			{
-				var current:Bone = bone;
-				while(current){
-					if(temp.hasOwnProperty(current.name)){
-						_boneIKList[temp[current.name]].push(bone);
-						continue next;
-					}
-					current = current.parent;
-				}
-			}
-		}
+		
 		/**
 		 * Sort all slots based on zOrder
 		 */
@@ -746,12 +718,7 @@
 				_skinLists[skinName] = list;
 			}
 		}
-		public function buildIK():void
-		{
-			_ikList = new Vector.<IKConstraint>()
-			for each (var ikConstraintData:IKData in _armatureData.ikDataList)
-			_ikList[_ikList.length] = new IKConstraint(ikConstraintData, this);
-		}
+
 		public function changeSkin(skinName:String):void
 		{
 			var skinData:SkinData = armatureData.getSkinData(skinName);
@@ -783,18 +750,80 @@
 				slot.changeDisplay(0);
 			}
 		}
-		/**是否属于约束点**/
-		public function isIKTargetData(bone:Bone):Array
+		
+		public function getIKs(returnCopy:Boolean = true):Vector.<IKConstraint>
 		{
-			var target:Array=[];
-			for each (var ik:IKConstraint in _ikList) 
+			return returnCopy?_ikList.concat():_ikList;
+		}
+		
+		public function buildIK():void
+		{
+			var ikConstraintData:IKData;
+			_ikList.fixed = false;
+			_ikList.length = 0;
+			for (var i:int = 0, len:int = _armatureData.ikDataList.length; i < len; i++)
 			{
+				ikConstraintData = _armatureData.ikDataList[i];
+				_ikList.push(new IKConstraint(ikConstraintData, this));
+			}
+			_ikList.fixed = true;
+		}
+		
+		public function updateBoneCache():void
+		{
+			_boneList.reverse();
+			var temp:Object = { };
+			var ikConstraintsCount:int = _ikList.length;
+			var arrayCount:int = ikConstraintsCount + 1;
+			var i:int;
+			var len:int;
+			var j:int;
+			var jLen:int;
+			var bone:Bone;
+			var currentBone:Bone;
+			
+			_boneIKList = new Vector.<Vector.<Bone>>();
+			while (_boneIKList.length < arrayCount)
+			{
+				_boneIKList[_boneIKList.length] = new Vector.<Bone>();
+			}
+			
+			temp[_boneList[0].name] = 0;
+			for (i = 0, len = _ikList.length; i < len; i++) 
+			{
+				temp[_ikList[i].bones[0].name] = i+1;
+			}
+			next:
+			for (i = 0, len = _boneList.length; i < len; i++)
+			{
+				bone = _boneList[i];
+				currentBone = bone;
+				while (currentBone)
+				{
+					if (temp.hasOwnProperty(currentBone.name))
+					{
+						_boneIKList[temp[currentBone.name]].push(bone);
+						continue next;
+					}
+					currentBone = currentBone.parent;
+				}
+			}
+		}
+		
+		public function getIKTargetData(bone:Bone):Array
+		{
+			var target:Array = [];
+			var ik:IKConstraint; 
+			for (var i:int = 0, len:int = _ikList.length; i < len; i++)
+			{
+				ik = _ikList[i];
 				if(bone.name == ik.target.name){
 					target.push(ik);
 				}
 			}
 			return target;
 		}
+		
 		public function getAnimation():Object
 		{
 			return _animation;
