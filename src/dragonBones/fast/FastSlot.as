@@ -31,6 +31,7 @@ package dragonBones.fast
 		dragonBones_internal var _originDisplayIndex:Number;
 		/** @private */
 		dragonBones_internal var _gotoAndPlay:String;
+		dragonBones_internal var _defaultGotoAndPlay:String;
 		
 		protected var _offsetZOrder:Number;
 		
@@ -70,6 +71,7 @@ package dragonBones.fast
 		{
 			name = slotData.name;
 			blendMode = slotData.blendMode;
+			_defaultGotoAndPlay = slotData.gotoAndPlay;
 			_originZOrder = slotData.zOrder;
 			_displayDataList = slotData.displayDataList;
 			_originDisplayIndex = slotData.displayIndex;
@@ -153,7 +155,11 @@ package dragonBones.fast
 					var curAnimation:String = _gotoAndPlay;
 					if (curAnimation == null)
 					{
-						curAnimation = childArmature.armatureData.defaultAnimation;
+						curAnimation = _defaultGotoAndPlay;
+						if (curAnimation == null)
+						{
+							curAnimation = childArmature.armatureData.defaultAnimation;
+						}
 					}
 					if (curAnimation == null)
 					{
