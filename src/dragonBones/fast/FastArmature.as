@@ -361,7 +361,7 @@ package dragonBones.fast
 				parentBone.boneList.push(bone);
 			}
 			bone.armature = this;
-			bone.setParent(parentBone);
+			bone.parentBoneData = parentBone;
 			boneList.unshift(bone);
 			_boneDic[bone.name] = bone;
 		}

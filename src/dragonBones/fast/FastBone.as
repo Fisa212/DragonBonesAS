@@ -1,18 +1,17 @@
 package dragonBones.fast
 {
-	import dragonBones.animation.TimelineState;
+	import flash.geom.Matrix;
+	import flash.geom.Point;
+	
 	import dragonBones.core.dragonBones_internal;
 	import dragonBones.events.FrameEvent;
 	import dragonBones.fast.animation.FastAnimationState;
 	import dragonBones.fast.animation.FastBoneTimelineState;
-	import dragonBones.IKConstraint;
 	import dragonBones.objects.BoneData;
 	import dragonBones.objects.DBTransform;
 	import dragonBones.objects.Frame;
 	import dragonBones.objects.ParentTransformObject;
 	import dragonBones.utils.TransformUtil;
-	import flash.geom.Matrix;
-	import flash.geom.Point;
 
 	use namespace dragonBones_internal;
 	
@@ -38,9 +37,11 @@ package dragonBones.fast
 		public var rotationIK:Number;
 		public var length:Number;
 		public var isIKConstraint:Boolean = false;
+		public var childrenBones:Vector.<FastBone> = new Vector.<FastBone>();
 		
 		public var slotList:Vector.<FastSlot> = new Vector.<FastSlot>();
 		public var boneList:Vector.<FastBone> = new Vector.<FastBone>();
+		
 		/** @private */
 		dragonBones_internal var _timelineState:FastBoneTimelineState;
 		
@@ -95,8 +96,15 @@ package dragonBones.fast
 		public function invalidUpdate():void
 		{
 			_needUpdate = 2;
-			
-			var arr:Array = this.armature.getIKTargetData(this);
+			operationInvalidUpdate(this);
+			for each (var i:FastBone in childrenBones) 
+			{
+				operationInvalidUpdate(i);
+			}
+		}
+		private function operationInvalidUpdate(bone:FastBone):void
+		{
+			var arr:Array = this.armature.getIKTargetData(bone);
 			var i:int;
 			var len:int;
 			var j:int;
@@ -113,7 +121,6 @@ package dragonBones.fast
 					bo.invalidUpdate();
 				}
 			}
-			
 		}
 		
 		override protected function calculateRelativeParentTransform():void
@@ -309,6 +316,31 @@ package dragonBones.fast
 		public function get parentBoneRotation():Number
 		{
 			return this.parent ? this.parent.rotationIK : 0;
+		}
+		
+		public function set parentBoneData(value:FastBone):void 
+		{
+			if (_parent != value)
+			{
+				if (_parent != null)
+				{
+					var index:int = _parent.childrenBones.indexOf(this);
+					if (index >= 0)
+					{
+						_parent.childrenBones.splice(index, 1);
+					}
+				}
+				setParent(value);
+				if (_parent != null)
+				{
+					var indexs:int = _parent.childrenBones.indexOf(this);
+					if (indexs < 0)
+					{
+						_parent.childrenBones.push(this);
+					}
+				}
+			}
+			
 		}
 	}
 }

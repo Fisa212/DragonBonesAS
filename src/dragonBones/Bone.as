@@ -53,6 +53,7 @@
 		public var rotationIK:Number;
 		public var length:Number;
 		public var isIKConstraint:Boolean = false;
+		public var childrenBones:Vector.<Bone> = new Vector.<Bone>();
 		
 		/** @private */
 		protected var _boneList:Vector.<Bone>;
@@ -196,6 +197,11 @@
 			_boneList.fixed = true;
 			childBone.setParent(this);
 			childBone.setArmature(_armature);
+			var index:int = childrenBones.indexOf(childBone);
+			if (index < 0)
+			{
+				childrenBones.push(childBone);
+			}
 			
 			if(_armature && !updateLater)
 			{
@@ -224,6 +230,11 @@
 			_boneList.fixed = false;
 			_boneList.splice(index, 1);
 			_boneList.fixed = true;
+			var indexs:int = childrenBones.indexOf(childBone);
+			if (indexs >= 0)
+			{
+				childrenBones.splice(indexs, 1);
+			}
 			childBone.setParent(null);
 			childBone.setArmature(null);
 			
@@ -340,14 +351,21 @@
 		public function invalidUpdate():void
 		{
 			_needUpdate = 2;
-			var arr:Array = this.armature.getIKTargetData(this);
+			operationInvalidUpdate(this);
+			for each (var i:Bone in childrenBones) 
+			{
+				operationInvalidUpdate(i)	
+			}
+		}
+		private function operationInvalidUpdate(bone:Bone):void
+		{
+			var arr:Array = this.armature.getIKTargetData(bone);
 			var i:int;
 			var len:int;
 			var j:int;
 			var jLen:int;
 			var ik:IKConstraint;
 			var bo:Bone;
-			
 			for (i = 0, len = arr.length; i < len; i++)
 			{
 				ik = arr[i];
