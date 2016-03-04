@@ -11,6 +11,7 @@ package dragonBones.objects
 		private var _slotDataList:Vector.<SlotData>;
 		private var _animationDataList:Vector.<AnimationData>;
 		public var defaultAnimation:String;
+		public var frameRate:uint;
 		
 		public function ArmatureData()
 		{
