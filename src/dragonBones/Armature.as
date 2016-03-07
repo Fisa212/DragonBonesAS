@@ -796,10 +796,15 @@
 			next:
 			for (i = 0, len = _boneList.length; i < len; i++)
 			{
+				
 				bone = _boneList[i];
 				currentBone = bone;
 				while (currentBone)
 				{
+					if (currentBone.parent == null)
+					{
+						temp[currentBone.name] = 0;
+					}
 					if (temp.hasOwnProperty(currentBone.name))
 					{
 						_boneIKList[temp[currentBone.name]].push(bone);

@@ -622,6 +622,10 @@ package dragonBones.fast
 				currentBone = bone;
 				while (currentBone)
 				{
+					if (currentBone.parent == null) 
+					{
+						temp[currentBone.name] = 0;
+					}
 					if (temp.hasOwnProperty(currentBone.name))
 					{
 						_boneIKList[temp[currentBone.name]].push(bone);
