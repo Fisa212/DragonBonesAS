@@ -99,7 +99,10 @@ package dragonBones.fast
 			operationInvalidUpdate(this);
 			for each (var i:FastBone in childrenBones) 
 			{
-				operationInvalidUpdate(i);
+				if(i._needUpdate != 2){
+					operationInvalidUpdate(i)	
+					i.invalidUpdate()
+				}
 			}
 		}
 		private function operationInvalidUpdate(bone:FastBone):void
@@ -118,7 +121,9 @@ package dragonBones.fast
 				for (j = 0, jLen = ik.bones.length; j < jLen; j++)
 				{
 					bo = ik.bones[j];
-					bo.invalidUpdate();
+					if(bo._needUpdate != 2){
+						bo.invalidUpdate();
+					}
 				}
 			}
 		}

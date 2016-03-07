@@ -354,7 +354,10 @@
 			operationInvalidUpdate(this);
 			for each (var i:Bone in childrenBones) 
 			{
-				operationInvalidUpdate(i)	
+				if(i._needUpdate != 2){
+					operationInvalidUpdate(i)	
+					i.invalidUpdate()
+				}
 			}
 		}
 		private function operationInvalidUpdate(bone:Bone):void
@@ -372,7 +375,9 @@
 				for (j = 0, jLen = ik.bones.length; j < jLen; j++)
 				{
 					bo = ik.bones[j];
-					bo.invalidUpdate();
+					if(bo._needUpdate != 2){
+						bo.invalidUpdate();
+					}
 				}
 			}
 		}
