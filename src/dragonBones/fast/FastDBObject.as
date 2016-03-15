@@ -160,6 +160,7 @@ package dragonBones.fast
 				*/
 				return ParentTransformObject.create().setTo(parentGlobalTransform,parentGlobalTransformMatrix);
 			}
+			TransformUtil.transformToMatrix(_global, _globalTransformMatrix);
 			return null;
 		}
 		
