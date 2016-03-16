@@ -89,7 +89,8 @@
 		public static const A_SCALE_MODE:String = "scaleMode";
 		public static const A_FIXED_ROTATION:String = "fixedRotation";
 		
-		public static const A_DEFAULT_ANIMATION:String = "defaultAnimation";
+		public static const A_DEFAULT_ACTIONS:String = "defaultActions";
+		public static const A_ACTIONS:String = "actions";
 		public static const A_GOTOANDPLAY:String = "gotoAndPlay";
 		
 		public static const A_TARGET:String = "target";
