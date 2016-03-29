@@ -261,12 +261,7 @@
 			fadeOutMode:String = ALL
 		):AnimationState
 		{
-			var animationState:AnimationState = getState(animationName, layer);
-			if(!animationState || !animationState.isPlaying)
-			{
-				animationState = gotoAndPlay(animationName, fadeInTime, duration, NaN, layer, group, fadeOutMode);
-			}
-			
+			var animationState:AnimationState = gotoAndPlay(animationName, fadeInTime, duration, NaN, layer, group, fadeOutMode);
 			if(normalizedTime >= 0)
 			{
 				animationState.setCurrentTime(animationState.totalTime * normalizedTime);
