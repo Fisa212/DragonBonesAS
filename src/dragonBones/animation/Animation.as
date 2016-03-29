@@ -262,7 +262,7 @@
 		):AnimationState
 		{
 			var animationState:AnimationState = getState(animationName, layer);
-			if(!animationState)
+			if(!animationState || !animationState.isPlaying)
 			{
 				animationState = gotoAndPlay(animationName, fadeInTime, duration, NaN, layer, group, fadeOutMode);
 			}
@@ -276,6 +276,7 @@
 				animationState.setCurrentTime(time);
 			}
 			
+			animationState.lastFrameAutoTween = false;
 			animationState.stop();
 			
 			return animationState;
