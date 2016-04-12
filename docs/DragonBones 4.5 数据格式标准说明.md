@@ -1,3 +1,4 @@
+```json
 {
     "name": "dragonBonesName", // DragonBones 数据名称
     "version": "4.5", // 数据版本
@@ -178,3 +179,4 @@
         }]
     }]
 }
+```
