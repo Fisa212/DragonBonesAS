@@ -186,18 +186,16 @@
 
 ------------------------------
 
-# 4.5 格式变化
-* DragonBones
-    1. isGlobal 
+# 4.5 相对 4.0 格式变化
 
 * Armature
     1. 增加 "frameRate" 属性: 可为每个骨架设置独立帧率
     2. 增加 "type" 属性: 骨骼动画/基本动画/场景动画
-    3. 增加 "defaultActions" 列表: 可为骨架分配默认行为
+    3. 增加 "defaultActions" 列表: 可为骨架分配默认行为 (删除 "gotoAndPlay" 属性, 其功能与 "actions" 合并)
     4. 增加 "ik" 列表
 
 * Slot
-    1. 增加 "actions" 列表: 插槽可为子骨架分配默认行为
+    1. 增加 "actions" 列表: 插槽可为子骨架分配默认行为 (删除 "gotoAndPlay" 属性, 其功能与 "actions" 合并)
 
 * Display
     1. "type" 属性增加 "mesh" 类型以及与其匹配的其他属性
@@ -206,11 +204,14 @@
     1. 增加 "ffd" 时间轴
 
 * Frame
-    1. 增加 "actions" 列表: 控制子骨架行为
+    1. 增加 "actions" 列表: 控制子骨架行为 (删除 "action" "gotoAndPlay" 属性, 其功能与 "actions" 合并)
+
+* actions
+    暂时只支持 "gotoAndPlay" 行为, 后续会扩展更多对动画的控制行为和交互行为
 
 ------------------------------
 
-# 4.0格式变化
+# 4.0 相对 3.0 格式变化
 
 * Armature 中包含Slot列表
 
