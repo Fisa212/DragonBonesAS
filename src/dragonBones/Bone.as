@@ -405,19 +405,27 @@
 			{
 				return;
 			}
+			updataLocalTransform();
+			updateGlobalTransform();
+		}
+		private function updataLocalTransform():void
+		{
 			blendingTimeline();
+			calculateRelativeParentTransform();
+		}
+		private function updateGlobalTransform():void
+		{
 			//计算global
 			var result:ParentTransformObject = updateGlobal();
 			var parentGlobalTransform:DBTransform; 
 			var parentGlobalTransformMatrix:Matrix;
-			
 			if (result)
 			{
 				parentGlobalTransform = result.parentGlobalTransform;
 				parentGlobalTransformMatrix = result.parentGlobalTransformMatrix;
 				result.release();
 			}
-		//计算globalForChild
+			//计算globalForChild
 			var ifExistOffsetTranslation:Boolean = _offset.x != 0 || _offset.y != 0;
 			var ifExistOffsetScale:Boolean = _offset.scaleX != 1 || _offset.scaleY != 1;
 			var ifExistOffsetRotation:Boolean = _offset.skewX != 0 || _offset.skewY != 0;
@@ -480,11 +488,13 @@
 			{
 				return;
 			}
-			
-			global.rotation = rotationIK;
+			updataLocalTransform();
+			_global.rotation = rotationIK-parentBoneRotation;
+			updateGlobalTransform();
+			/*global.rotation = rotationIK;
 			TransformUtil.transformToMatrix(global, _globalTransformMatrix);
 			_globalTransformForChild.rotation= rotationIK;
-			TransformUtil.transformToMatrix(_globalTransformForChild, _globalTransformMatrixForChild);
+			TransformUtil.transformToMatrix(_globalTransformForChild, _globalTransformMatrixForChild);*/
 		}
 		
 		/** @private */
@@ -547,7 +557,7 @@
 				return super.updateGlobal();
 			}
 			
-			calculateRelativeParentTransform();
+			//calculateRelativeParentTransform();
 			var output:ParentTransformObject = calculateParentTransform();
 			if(output != null && output.parentGlobalTransformMatrix && output.parentGlobalTransform)
 			{

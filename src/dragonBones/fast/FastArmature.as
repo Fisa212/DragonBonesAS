@@ -210,15 +210,20 @@ package dragonBones.fast
 				//}
 				for (i = 0; i < len; i++) 
 				{
-					for (j = 0, jLen = _boneIKList[i].length; j < jLen; j++)
+					if(i != 0)
 					{
-						bone = _boneIKList[i][j];
-						bone.update();
-						bone.rotationIK = bone.global.rotation;
-						if(i != 0 && bone.isIKConstraint)
+						_ikList[i-1].compute();
+						for (j = 0, jLen = _boneIKList[i].length; j < jLen; j++)
 						{
-							_ikList[i-1].compute();
+							bone = _boneIKList[i][j];
 							bone.adjustGlobalTransformMatrixByIK();
+						}
+					}else{
+						for (j = 0, jLen = _boneIKList[i].length; j < jLen; j++)
+						{
+							bone = _boneIKList[i][j];
+							bone.update();
+							bone.rotationIK = bone.global.rotation;
 						}
 					}
 				}

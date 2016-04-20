@@ -157,7 +157,16 @@ package dragonBones.fast
 			{
 				return;
 			}
+			updataLocalTransform();
+			updateGlobalTransform();
+		}
+		private function updataLocalTransform():void
+		{
 			blendingTimeline();
+			calculateRelativeParentTransform();
+		}
+		private function updateGlobalTransform():void
+		{
 			//计算global
 			var result:ParentTransformObject = updateGlobal();
 			if (result)
@@ -172,9 +181,11 @@ package dragonBones.fast
 			{
 				return;
 			}
-			
-			global.rotation = rotationIK;
-			TransformUtil.transformToMatrix(global, _globalTransformMatrix);
+			updataLocalTransform();
+			_global.rotation = rotationIK-parentBoneRotation;
+			updateGlobalTransform();
+			//global.rotation = rotationIK;
+			//TransformUtil.transformToMatrix(global, _globalTransformMatrix);
 			//_globalTransformForChild.rotation= rotationIK;
 			//TransformUtil.transformToMatrix(_globalTransformForChild, _globalTransformMatrixForChild);
 		}
@@ -186,7 +197,7 @@ package dragonBones.fast
 				return super.updateGlobal();
 			}
 			
-			calculateRelativeParentTransform();
+			//calculateRelativeParentTransform();
 			var output:ParentTransformObject = calculateParentTransform();
 			if(output != null && output.parentGlobalTransformMatrix && output.parentGlobalTransform)
 			{

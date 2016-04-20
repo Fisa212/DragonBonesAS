@@ -1,6 +1,7 @@
 package dragonBones.utils
 {
 	import flash.geom.Matrix;
+	import flash.geom.Point;
 	
 	import dragonBones.objects.DBTransform;
 	
@@ -105,6 +106,25 @@ package dragonBones.utils
 			else 
 			{
 				transform.skewY = tmpSkewYArray[1];
+			}
+		}
+		private static const _helpMatrix:Matrix = new Matrix();
+		public static function applyMatrixToPoint(targetPoint:Point, matrix:Matrix, returnNewPoint:Boolean = false):Point
+		{
+			_helpMatrix.tx = targetPoint.x;
+			_helpMatrix.ty = targetPoint.y;
+			
+			_helpMatrix.concat(matrix);
+			
+			if(returnNewPoint)
+			{
+				return new Point(_helpMatrix.tx, _helpMatrix.ty);
+			}
+			else
+			{
+				targetPoint.x = _helpMatrix.tx;
+				targetPoint.y = _helpMatrix.ty;
+				return targetPoint;
 			}
 		}
 		//确保角度在-180到180之间
